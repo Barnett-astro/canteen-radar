@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>食堂雷达 · 懂你校园节奏的食堂指南</title>
+<meta name="description" content="校园食堂点评推荐：按校园场景推荐、实时人流、红黑榜避雷、10秒轻点评、档口故事。">
+<style>
+:root{
+  --bg:#f5f2ec;--card:#ffffff;--ink:#1f1d1a;--ink2:#6b665e;--ink3:#9a948a;--line:#e9e4da;
+  --pri:#e5602a;--pri-soft:#fdede4;--good:#1d9a60;--good-soft:#e3f4eb;--bad:#d24343;--bad-soft:#fbe8e8;
+  --warn:#c98a10;--warn-soft:#fbf1d9;--blue:#3868d0;--blue-soft:#e8eefb;--shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px rgba(60,40,20,.06);
+  --frame:#e9e4db;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#141311;--card:#1f1d1a;--ink:#f2eee7;--ink2:#aaa398;--ink3:#7a746b;--line:#302d28;
+  --pri:#f27b46;--pri-soft:#3a2317;--good:#43c187;--good-soft:#15302a;--bad:#ef6b6b;--bad-soft:#3a1d1d;
+  --warn:#e6b24a;--warn-soft:#342a14;--blue:#7aa2f2;--blue-soft:#1b2640;--shadow:none;--frame:#0d0c0b;
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--frame);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+input,textarea,select{font:inherit;color:inherit}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);padding-bottom:84px;position:relative}
+.top{position:sticky;top:0;z-index:20;background:var(--bg);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid transparent}
+.logo{font-weight:800;font-size:20px;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.logo i{font-style:normal;display:inline-grid;place-items:center;width:28px;height:28px;border-radius:9px;background:var(--pri);color:#fff;font-size:15px}
+.sp{flex:1}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:12px;background:var(--card);border:1px solid var(--line);color:var(--ink2);white-space:nowrap}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.chip.g{background:var(--good-soft);border-color:transparent;color:var(--good)}
+.chip.b{background:var(--bad-soft);border-color:transparent;color:var(--bad)}
+.chip.w{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+.chip.p{background:var(--pri-soft);border-color:transparent;color:var(--pri)}
+.chip.bl{background:var(--blue-soft);border-color:transparent;color:var(--blue)}
+.wrap{padding:0 16px}
+.notice{margin:4px 16px 12px;padding:10px 12px;border-radius:12px;background:var(--blue-soft);color:var(--blue);font-size:12.5px;display:flex;gap:8px;align-items:flex-start}
+.notice b{font-weight:600}
+.h2{font-size:17px;font-weight:700;margin:22px 0 10px;display:flex;align-items:baseline;gap:8px}
+.h2 small{font-size:12px;font-weight:400;color:var(--ink3)}
+.h2 .sp+a,.h2 button.more{font-size:12.5px;color:var(--ink2);font-weight:400}
+.card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.pad{padding:14px}
+.muted{color:var(--ink2)}.faint{color:var(--ink3)}
+.hello{padding:4px 16px 0}
+.hello h1{font-size:22px;margin:0 0 2px;font-weight:800}
+.hello p{margin:0;color:var(--ink2);font-size:13.5px}
+.exam{margin:12px 16px 0;padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--warn);font-size:13px;display:flex;align-items:center;gap:8px}
+.scenes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.scene{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px 8px;text-align:left;transition:.15s}
+.scene .i{font-size:20px}
+.scene .n{font-weight:700;font-size:14px;margin-top:2px}
+.scene .d{font-size:11px;color:var(--ink3);line-height:1.35;margin-top:1px}
+.scene.on{border-color:var(--pri);background:var(--pri-soft)}
+.scene.on .d{color:var(--pri)}
+.need{margin-top:10px;font-size:12.5px;color:var(--ink2);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rec{display:flex;gap:12px;padding:12px;align-items:flex-start}
+.rec+.rec{border-top:1px solid var(--line)}
+.rank{width:26px;height:26px;border-radius:8px;background:var(--pri-soft);color:var(--pri);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.rec .t{font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rec .s{font-size:12.5px;color:var(--ink2);margin-top:1px}
+.rec .rs{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.price{margin-left:auto;text-align:right;flex:none}
+.price b{font-size:16px;color:var(--pri)}
+.star{color:#f0a020;font-weight:700}
+.bars .row{display:grid;grid-template-columns:1fr 44px;gap:8px;align-items:center;margin:8px 0}
+.bars .lab{font-size:13px;margin-bottom:4px;display:flex;justify-content:space-between}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--pri)}
+.bar.g>i{background:var(--good)}.bar.b>i{background:var(--bad)}.bar.bl>i{background:var(--blue)}
+.pct{font-weight:700;font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.hs{display:flex;gap:10px;overflow-x:auto;padding:2px 16px 6px;margin:0 -16px;scrollbar-width:none}
+.hs::-webkit-scrollbar{display:none}
+.mini{flex:none;width:150px;padding:12px;text-align:left}
+.mini .t{font-weight:700;margin-top:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 16px;border-radius:12px;font-weight:600;background:var(--pri);color:#fff}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn.block{width:100%}
+.btn.sm{padding:6px 12px;font-size:13px;border-radius:10px}
+.random{display:flex;align-items:center;gap:12px;padding:14px;margin-top:12px}
+.random .big{font-size:28px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:30}
+.nav button{display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--ink3);gap:1px}
+.nav button .i{font-size:20px;filter:grayscale(1);opacity:.7}
+.nav button.on{color:var(--pri);font-weight:600}
+.nav button.on .i{filter:none;opacity:1}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;padding:7px 0;border-radius:9px;font-size:13.5px;color:var(--ink2)}
+.seg button.on{background:var(--pri);color:#fff;font-weight:600}
+.canteen{padding:14px;margin-bottom:12px}
+.canteen .hd{display:flex;align-items:center;gap:10px}
+.canteen .nm{font-size:17px;font-weight:800}
+.meter{display:flex;gap:3px;margin-top:10px}
+.meter i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.win{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px dashed var(--line);text-align:left;width:100%}
+.win .wn{font-weight:600}
+.dish{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);width:100%;text-align:left}
+.dish:first-child{border-top:0}
+.story{background:linear-gradient(135deg,var(--warn-soft),var(--pri-soft));border-radius:14px;padding:14px;margin:12px 0}
+.story .q{font-style:italic;color:var(--ink2);margin-top:8px;font-size:13px}
+.rv{padding:12px 0;border-top:1px solid var(--line)}
+.rv .u{display:flex;align-items:center;gap:8px;font-size:13px}
+.av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;color:#fff;font-weight:700;flex:none}
+.rv .tx{margin:6px 0 4px;font-size:14px}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:480px;max-height:90vh;border-radius:20px 20px 0 0;overflow:auto;animation:up .22s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.sheet .sh{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:8px;padding:12px 16px;z-index:2;border-bottom:1px solid var(--line)}
+.sheet .sh b{font-size:16px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet .sb{padding:6px 16px 28px}
+.x{width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;font-size:15px;flex:none}
+.stars{display:flex;gap:6px;font-size:30px}
+.stars button{color:var(--line);transition:.1s}
+.stars button.on{color:#f0a020}
+.fl{font-size:13px;font-weight:600;margin:16px 0 8px;color:var(--ink2)}
+.pick{display:flex;gap:6px;flex-wrap:wrap}
+.pick .chip{padding:6px 11px;font-size:13px;cursor:pointer}
+textarea{width:100%;border-radius:12px;border:1px solid var(--line);background:var(--card);padding:10px;resize:none;min-height:70px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{padding:12px}
+.kpi b{font-size:22px;display:block;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--ink2)}
+.hourchart{display:flex;align-items:flex-end;gap:2px;height:110px;padding-top:6px}
+.hourchart i{flex:1;border-radius:3px 3px 0 0;background:var(--pri);opacity:.75;position:relative}
+.hourchart i.now{opacity:1;outline:2px solid var(--ink);outline-offset:1px}
+.hourchart i.off{background:var(--line);opacity:1}
+.hx{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink3);margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--ink2);font-weight:600;position:sticky;top:0;background:var(--card);cursor:pointer}
+.tbl{max-height:360px;overflow:auto;border-radius:12px}
+pre{font-size:11px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;overflow:auto;max-height:300px}
+details summary{cursor:pointer;font-size:13px;color:var(--ink2);padding:8px 0}
+.mem{padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line);margin-bottom:8px;font-size:13.5px}
+.mem .m{font-size:11.5px;color:var(--ink3);margin-top:3px}
+.rip{padding:12px;border-radius:14px;background:var(--card);border:1px dashed var(--ink3);margin-bottom:8px}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13.5px;z-index:99;opacity:0;transition:.25s;pointer-events:none;max-width:88vw;text-align:center}
+.toast.show{opacity:1}
+.empty{padding:22px;text-align:center;color:var(--ink3);font-size:13px}
+.slot{font-size:22px;font-weight:800;min-height:34px}
+.prd h3{font-size:15px;margin:16px 0 6px}
+.prd p,.prd li{font-size:13.5px;color:var(--ink2);margin:4px 0}
+.prd ul{padding-left:18px;margin:4px 0}
+.timesel{font-size:12px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:3px 6px;color:var(--ink2)}
+.fav{font-size:20px}
+input[type=range]{width:100%;accent-color:var(--pri)}
+.row2{display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="top">
+    <div class="logo"><i>雷</i>食堂雷达</div>
+    <span class="chip w" title="所有食堂与数据均为虚构示例">示例数据</span>
+    <div class="sp"></div>
+    <select class="timesel" id="timesel" onchange="setTime(this.value)" aria-label="模拟时间">
+      <option value="">实时</option>
+      <option value="7.3">模拟 07:18</option>
+      <option value="11.9">模拟 11:54</option>
+      <option value="18">模拟 18:00</option>
+      <option value="22.5">模拟 22:30</option>
+    </select>
+  </div>
+  <main id="view"></main>
+</div>
+<nav class="nav" id="nav"></nav>
+<div class="overlay" id="ov" onclick="if(event.target===this)closeAll()"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 示例数据（全部为虚构） ================= */
+const SCENES=[
+ {k:'early',i:'⏰',n:'早八前',d:'开门早 · 能边走边吃',need:['开门早','出餐快','便携']},
+ {k:'pre',i:'🎤',n:'pre 前',d:'清淡无味 · 不犯困',need:['清淡','无异味','≤6 分钟出餐']},
+ {k:'after',i:'🎉',n:'考试后',d:'犒劳自己 · 吃点好的',need:['好吃','有仪式感','不赶时间']},
+ {k:'due',i:'🌙',n:'赶 due',d:'营业晚 · 热乎顶饱',need:['营业到很晚','热乎','离宿舍近']},
+ {k:'group',i:'👯',n:'约饭',d:'能分享 · 有得聊',need:['适合分享','有氛围','口碑稳']},
+ {k:'solo',i:'🍚',n:'随便吃点',d:'快、稳、不踩雷',need:['性价比','稳定','出餐快']},
+];
+const SK=SCENES.map(s=>s.k);
+const SAMPLE={early:1286,pre:642,after:935,due:518,group:704,solo:2140};
+
+const CANTEENS=[
+ {id:'c1',n:'桃李苑',a:'一食堂',o:6.5,c:21,dist:'东区宿舍旁 · 步行 3 分钟',since:1998,peaks:[[7.4,55,.45],[12,95,.6],[17.9,80,.7]],
+  story:'建校那年就有的食堂。二楼曾经是学校礼堂，老校友回来总要上楼看一眼。'},
+ {id:'c2',n:'听竹轩',a:'二食堂',o:7,c:20.5,dist:'图书馆西侧 · 步行 5 分钟',since:2006,peaks:[[7.6,30,.5],[12.1,85,.6],[18,70,.7]],
+  story:'因为门口那片竹林得名。期末周常有人抱着电脑来这里占座复习。'},
+ {id:'c3',n:'星河餐厅',a:'三食堂',o:10.5,c:21.5,dist:'教学楼群中间 · 步行 2 分钟',since:2021,peaks:[[12,100,.55],[18.2,90,.7]],
+  story:'最新的食堂，离教学楼最近，所以午饭高峰也最挤。'},
+ {id:'c4',n:'北区夜宵坊',a:'夜宵',o:17,c:23.5,dist:'北区宿舍楼下 · 步行 1 分钟',since:2012,peaks:[[18.2,50,.8],[22,88,.9]],
+  story:'熬夜党的据点。每到期末周，十点以后比中午还热闹。'},
+];
+const WINDOWS=[
+ {id:'w1',c:'c1',n:'老张面馆',f:'1F',since:2009,story:'张师傅来自兰州，2009 年从校门口的小面馆搬进桃李苑。牛肉汤每天凌晨四点开始熬。',q:'“娃娃们吃饱了，我就高兴。”——张师傅'},
+ {id:'w2',c:'c1',n:'早点铺',f:'1F',since:1998,story:'桃李苑开业时就有的窗口。豆浆机换了三代，包子的配方一直没换。',q:'“六点半开门，二十多年没迟到过。”——王阿姨'},
+ {id:'w3',c:'c1',n:'自选快餐',f:'2F',since:1998,story:'最“食堂味”的窗口，两荤一素 12 块，十年只涨过两次价。',q:'“菜多打一勺不算什么。”——打菜的刘阿姨'},
+ {id:'w4',c:'c2',n:'川湘小炒',f:'1F',since:2014,story:'湖南来的李叔李姨夫妇，每道菜现点现炒，锅气是全校独一份。',q:'“辣度可以调，但锅气不能少。”——李叔'},
+ {id:'w5',c:'c2',n:'轻食·杂粮碗',f:'2F',since:2023,story:'2023 年学生会提案“食堂也要有健康餐”后开的窗口，是学生投票投出来的。',q:'“菜单每学期会按大家的点评调一次。”'},
+ {id:'w6',c:'c2',n:'潮汕砂锅粥',f:'1F',since:2010,story:'砂锅一次只熬两份，所以要等。老顾客都知道先点单，再去打别的菜。',q:'“粥要慢，急不得。”——陈师傅'},
+ {id:'w7',c:'c3',n:'韩式拌饭',f:'1F',since:2021,story:'星河餐厅开业时的第一批窗口，石锅是从韩国运来的。',q:''},
+ {id:'w8',c:'c3',n:'麻辣香锅',f:'2F',since:2021,story:'全校排队最长的窗口，约饭率第一。',q:'“两个人点一锅最划算。”'},
+ {id:'w9',c:'c3',n:'西北手抓饭',f:'2F',since:2026,story:'本学期新开，接替了已关闭的「阿强铁板烧」的位置。开业两周评分就冲到了全校第一。',q:'“羊肉每天从产地直送。”——艾力师傅'},
+ {id:'w10',c:'c4',n:'深夜炒饭',f:'1F',since:2012,story:'北区夜宵坊的元老。期末周凌晨也会多开一个小时。',q:'“考完了记得回来吃份好的。”'},
+ {id:'w11',c:'c4',n:'烧烤档',f:'户外',since:2015,story:'毕业季的保留节目，每年六月都有整个班包场。',q:''},
+ {id:'w12',c:'c4',n:'关东煮·热饮',f:'1F',since:2018,story:'冬天的救星。热牛奶是熬夜党的“助眠神器”。',q:''},
+];
+// sc = [早八前,pre前,考试后,赶due,约饭,随便吃点] 场景适配度 0-3
+function mk(id,w,n,p,r,cnt,rep,fl,spd,flags,avoid,good,bad,isNew,sc){
+ const o={id,w,n,p,r,cnt,rep,fl,spd,portable:flags.includes('p'),smell:flags.includes('s'),share:flags.includes('h'),
+  avoid:avoid?avoid.split(','):[],good,bad,isNew:!!isNew,sc:{}};
+ SK.forEach((k,i)=>o.sc[k]=+sc[i]);return o;}
+const DISHES=[
+ mk('d1','w2','鲜肉大包',2.5,4.6,1820,86,'咸鲜',1,'p','',['热乎','性价比高','出餐快'],[],0,'310001'),
+ mk('d2','w2','鸡蛋灌饼',4.5,4.5,1540,81,'咸鲜',3,'p','',['份量足','出餐快'],['偶尔偏油'],0,'310001'),
+ mk('d3','w2','现磨豆浆',1.5,4.3,2100,78,'清淡',1,'p','',['热乎','清淡'],[],0,'310001'),
+ mk('d4','w2','茶叶蛋',1.5,4.2,980,70,'咸鲜',1,'p','',['便宜'],[],0,'310001'),
+ mk('d5','w1','兰州牛肉拉面',14,4.7,2230,88,'咸鲜',5,'','牛羊肉,香菜',['汤好喝','份量足','会回购'],['高峰排队久'],0,'011103'),
+ mk('d6','w1','番茄鸡蛋面',10,4.4,1310,80,'清淡',4,'','',['清淡','热乎'],[],0,'021002'),
+ mk('d7','w3','两荤一素套餐',12,3.9,3050,64,'咸鲜',2,'','',['出餐快','稳定'],['菜色单一'],0,'020003'),
+ mk('d8','w3','红烧肉',7,4.4,1120,77,'甜',2,'','',['肥而不腻','下饭'],[],0,'001102'),
+ mk('d9','w3','糖醋里脊',7,3.4,860,38,'甜',2,'','',[],['勾芡厚','肉少','凉了'],0,'000001'),
+ mk('d10','w4','小炒黄牛肉',18,4.6,980,82,'辣',8,'h','辣,牛羊肉',['锅气足','下饭'],['排队久'],0,'002031'),
+ mk('d11','w4','麻婆豆腐',8,4.2,1260,74,'辣',4,'h','辣',['下饭','性价比高'],['偏咸'],0,'001021'),
+ mk('d12','w4','水煮鱼片',22,3.2,540,31,'辣',10,'hs','辣,海鲜',[],['太咸','油大','鱼不新鲜'],0,'001020'),
+ mk('d13','w5','鸡胸藜麦碗',19,4.4,760,72,'清淡',3,'','',['清淡','低脂','不犯困'],['偏贵'],0,'030001'),
+ mk('d14','w5','牛油果虾仁沙拉',23,3.5,410,36,'清淡',3,'','海鲜',['清淡'],['偏贵','份量少','不顶饱'],1,'020000'),
+ mk('d15','w6','皮蛋瘦肉粥',9,4.5,1180,79,'清淡',6,'','',['热乎','暖胃','清淡'],[],0,'120001'),
+ mk('d16','w6','砂锅鲜虾粥',18,4.6,690,80,'清淡',15,'h','海鲜',['鲜','暖胃','适合分享'],['等得久'],0,'002020'),
+ mk('d17','w7','石锅拌饭',16,4.3,1400,73,'辣',6,'','辣',['锅巴香','份量足'],[],0,'001012'),
+ mk('d18','w7','芝士年糕',12,3.3,620,33,'甜',5,'','乳制品',['拉丝好看'],['太甜','凉得快','偏贵'],1,'000110'),
+ mk('d19','w8','麻辣香锅（两人份）',36,4.5,1650,84,'重口',12,'hs','辣',['香','适合分享','会回购'],['排队久','味道大'],0,'003030'),
+ mk('d20','w9','羊肉手抓饭',20,4.8,380,90,'咸鲜',4,'h','牛羊肉',['羊肉香','份量足','惊艳'],[],1,'003122'),
+ mk('d21','w9','烤包子',6,4.4,260,83,'咸鲜',3,'p','牛羊肉',['皮脆','热乎'],[],1,'000111'),
+ mk('d22','w10','蛋炒饭',10,4.2,1720,76,'咸鲜',4,'','',['顶饱','热乎','出餐快'],[],0,'000302'),
+ mk('d23','w10','酸菜鱼盖饭',16,2.9,480,22,'辣',6,'','辣,海鲜',[],['鱼腥','份量少','太咸'],0,'000101'),
+ mk('d24','w11','烤串拼盘',28,4.5,1320,81,'重口',12,'hs','牛羊肉,辣',['适合分享','氛围好'],['味道大','排队久'],0,'003230'),
+ mk('d25','w11','烤冷面',8,4.1,890,70,'甜',5,'p','',['便宜','热乎'],[],0,'001201'),
+ mk('d26','w12','关东煮',10,4.0,1050,68,'清淡',2,'p','',['热乎','暖胃'],['汤偏甜'],0,'000302'),
+ mk('d27','w12','热牛奶',3,4.3,640,71,'清淡',1,'p','乳制品',['助眠'],[],0,'000200'),
+];
+const SEED_REVIEWS=[
+ {d:'d13',s:'pre',st:5,tags:['清淡','不犯困'],t:'下午两点答辩，中午吃这个完全不困，嘴里也没味道，放心凑近跟老师说话。',u:'答辩幸存者',ago:'2 小时前',up:48},
+ {d:'d19',s:'after',st:5,tags:['适合分享','会回购'],t:'高数考完和室友冲的，一锅下去，所有不愉快都忘了。',u:'高数挂科预备役',ago:'昨天',up:36},
+ {d:'d19',s:'pre',st:2,tags:['味道大'],t:'千万别 pre 前吃！上台一开口全是麻辣味，前排同学都皱眉了……',u:'小组汇报人',ago:'3 天前',up:91},
+ {d:'d23',s:'solo',st:1,tags:['踩雷','鱼腥'],t:'鱼片腥，份量少，16 块不值。换别的吧。',u:'北区住户',ago:'昨天',up:57},
+ {d:'d20',s:'after',st:5,tags:['惊艳','份量足'],t:'新窗口yyds！羊肉很嫩，胡萝卜甜，考完四六级来这一口太满足。',u:'四六级过了吗',ago:'5 小时前',up:63},
+ {d:'d2',s:'early',st:5,tags:['出餐快'],t:'7:42 下楼，边走边吃，7:55 进教室，早八救星。',u:'早八人',ago:'今天',up:40},
+ {d:'d22',s:'due',st:4,tags:['顶饱','热乎'],t:'凌晨十一点赶 ddl 的续命饭，老板还多给了个蛋。',u:'ddl 战士',ago:'2 天前',up:29},
+ {d:'d9',s:'solo',st:2,tags:['勾芡厚','凉了'],t:'勾芡太厚，肉很少，而且二楼打过来就凉了。',u:'路人甲',ago:'4 天前',up:22},
+ {d:'d5',s:'solo',st:5,tags:['汤好喝','会回购'],t:'大学四年吃了应该有两百碗了，毕业前每周都要来一次。',u:'大四老狗',ago:'1 周前',up:120},
+ {d:'d14',s:'pre',st:3,tags:['偏贵','不顶饱'],t:'清淡是清淡，但 23 块吃完一小时就饿了。',u:'健身中',ago:'3 天前',up:18},
+ {d:'d12',s:'group',st:2,tags:['太咸','油大'],t:'这周换了个师傅？比以前咸很多，四个人都没吃完。',u:'宿舍长',ago:'2 天前',up:33},
+ {d:'d15',s:'early',st:5,tags:['暖胃'],t:'冬天早上喝一碗，胃里暖乎乎的。',u:'怕冷星人',ago:'1 周前',up:21},
+ {d:'d18',s:'after',st:2,tags:['太甜','凉得快'],t:'拍照好看，吃起来一般，放两分钟芝士就硬了。',u:'拍照党',ago:'5 天前',up:26},
+ {d:'d24',s:'group',st:5,tags:['氛围好'],t:'社团聚餐首选，户外吹风撸串，聊到十一点。',u:'社长',ago:'1 周前',up:44},
+ {d:'d27',s:'due',st:4,tags:['助眠'],t:'赶完论文来一杯，回宿舍秒睡。',u:'论文人',ago:'3 天前',up:15},
+ {d:'d10',s:'group',st:5,tags:['锅气足'],t:'李叔的小炒真的有锅气，两人点一份配两碗饭刚好。',u:'约饭搭子',ago:'4 天前',up:31},
+];
+const RIP=[
+ {n:'阿强铁板烧',w:'星河餐厅 2F',y:'2021–2025',t:'铁板上滋滋作响的黑椒牛柳，好多人的考后犒劳。窗口位置现在是「西北手抓饭」。',miss:1284},
+ {n:'清真拉面（二楼）',w:'桃李苑 2F',y:'2003–2019',t:'老校友口中“比现在的还好吃”的传说。',miss:862},
+ {n:'图书馆门口煎饼车',w:'图书馆东门',y:'2015–2022',t:'期末周凌晨一点还在，加两个蛋只要七块。',miss:1537},
+];
+const SEED_MEM=[
+ {t:'大一第一顿饭是桃李苑的番茄鸡蛋面，那天下雨，室友还不认识我，把伞分了我一半。',u:'2022 级 · 小林',ago:'3 天前'},
+ {t:'每次考砸都去北区吃蛋炒饭，老板从来不问，只是多加个蛋。',u:'2021 级 · 匿名',ago:'1 周前'},
+ {t:'在听竹轩复习了四个期末周，竹子长高了，我也要毕业了。',u:'2023 届 · 阿哲',ago:'2 周前'},
+];
+
+/* ================= 状态 & 存储 ================= */
+const LSK='shitang_leida_v1';
+let S={reviews:[],favs:[],avoid:[],budget:40,mem:[],exam:false,up:{},missed:{}};
+try{const x=JSON.parse(localStorage.getItem(LSK)||'null');if(x)S=Object.assign(S,x);}catch(e){}
+function save(){try{localStorage.setItem(LSK,JSON.stringify(S));}catch(e){}}
+let tab='home',scene=null,rankTab='red',simTime=null,crowdC='c1',sortKey='r',sortDir=-1,randomTimer=null;
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const W=id=>WINDOWS.find(w=>w.id===id), C=id=>CANTEENS.find(c=>c.id===id), Dd=id=>DISHES.find(d=>d.id===id);
+function nowH(){if(simTime!=null)return simTime;const d=new Date();return d.getHours()+d.getMinutes()/60;}
+function fmtH(h){const H=Math.floor(h),M=Math.round((h-H)*60);return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');}
+function setTime(v){simTime=v===''?null:+v;scene=null;render();}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);}
+
+/* ================= 计算 ================= */
+function allReviews(){return SEED_REVIEWS.map((r,i)=>({...r,id:'s'+i})).concat(S.reviews.map(r=>({...r,mine:true})));}
+function stat(d){const mine=S.reviews.filter(r=>r.d===d.id);const n=d.cnt+mine.length;const r=(d.r*d.cnt+mine.reduce((a,b)=>a+b.st,0))/n;return{r,n};}
+function isOpen(c,h=nowH()){return h>=c.o&&h<c.c;}
+function crowd(cid,h=nowH()){const c=C(cid);if(!isOpen(c,h))return -1;let v=8;c.peaks.forEach(([mu,a,s])=>v+=a*Math.exp(-((h-mu)**2)/(2*s*s)));
+ if(S.exam&&cid==='c2')v+=15; if(S.exam&&cid==='c4'&&h>21)v+=10; return Math.max(5,Math.min(100,Math.round(v)));}
+function crowdTag(cid,h){const v=crowd(cid,h);if(v<0)return'<span class="chip">未营业</span>';const q=Math.round(v/100*15);
+ if(v<35)return`<span class="chip g">空闲 · 排队约${q}分钟</span>`;if(v<70)return`<span class="chip w">适中 · 排队约${q}分钟</span>`;return`<span class="chip b">拥挤 · 排队约${q}分钟</span>`;}
+function blocked(d){return d.avoid.some(a=>S.avoid.includes(a))||d.p>S.budget;}
+function score(d,k){
+ const w=W(d.w),c=C(w.c),st=stat(d);
+ if(!d.sc[k])return null;
+ if(k==='early'&&c.o>7.5)return null;
+ if(k==='due'&&c.c<21.5)return null;
+ if(k==='pre'&&(d.smell||d.fl==='重口'))return null;
+ if(blocked(d))return null;
+ let s=d.sc[k]*1.3+(st.r-3.8)*2.2+Math.log10(st.n)*.4+d.rep/100;
+ if(k==='pre'){if(d.spd>6)s-=1;if(d.fl==='清淡')s+=.6;}
+ if(k==='early'&&d.portable)s+=.5;
+ if(k==='group'&&d.share)s+=.6;
+ const cr=crowd(c.id);if(cr<0)s-=1.2;else if(cr>75)s-=.4;
+ if(S.exam&&(k==='pre'||k==='after'||k==='due'))s+=.2;
+ const mine=S.reviews.filter(r=>r.d===d.id&&r.s===k);s+=mine.reduce((a,b)=>a+(b.st-3)*.3,0);
+ return s;}
+function reasons(d,k){const w=W(d.w),c=C(w.c),st=stat(d),r=[];
+ if(k==='early'){r.push(`${fmtH(c.o)} 开门`);if(d.portable)r.push('可边走边吃');}
+ if(k==='pre'){if(d.fl==='清淡')r.push('清淡无异味');r.push(`出餐约${d.spd}分钟`);}
+ if(k==='due')r.push(`营业到 ${fmtH(c.c)}`);
+ if(k==='group'&&d.share)r.push('适合分享');
+ if(k==='after'&&st.r>=4.5)r.push('高分犒劳');
+ if(d.spd<=3&&k!=='pre')r.push(`出餐约${d.spd}分钟`);
+ if(d.rep>=80)r.push(`回购率 ${d.rep}%`);
+ if(d.isNew)r.push('本周新菜');
+ return r.slice(0,3);}
+function recommend(k,n=5){return DISHES.map(d=>({d,s:score(d,k)})).filter(x=>x.s!=null).sort((a,b)=>b.s-a.s).slice(0,n);}
+function sceneShare(k){
+ const items=DISHES.filter(d=>d.sc[k]>0&&!(k==='early'&&C(W(d.w).c).o>7.5)&&!(k==='due'&&C(W(d.w).c).c<21.5)).map(d=>{
+  const st=stat(d);const u=S.reviews.filter(r=>r.d===d.id&&r.s===k).length;
+  return{d,w:d.sc[k]**2*st.n*(st.r/5)**6+u*400};});
+ const tot=items.reduce((a,b)=>a+b.w,0);items.sort((a,b)=>b.w-a.w);
+ const top=items.slice(0,4).map(x=>({d:x.d,p:Math.round(x.w/tot*100)}));
+ const rest=100-top.reduce((a,b)=>a+b.p,0);
+ return{top,rest,sample:SAMPLE[k]+S.reviews.filter(r=>r.s===k).length};}
+function defaultScene(){const h=nowH();if(S.exam&&h>=10&&h<14)return'pre';if(h<9)return'early';if(h>=21)return'due';if(h>=17&&h<19.5)return'group';return'solo';}
+function bayes(d){const st=stat(d);return(st.r*st.n+4*200)/(st.n+200);}
+
+/* ================= 通用组件 ================= */
+const COLORS=['#e5602a','#3868d0','#1d9a60','#c98a10','#8a4fd0','#d24376'];
+function avatar(u){let h=0;for(const ch of u)h=(h*31+ch.charCodeAt(0))>>>0;return`<span class="av" style="background:${COLORS[h%6]}">${esc(u.slice(0,1))}</span>`;}
+function dishLine(d,extra=''){const w=W(d.w),c=C(w.c),st=stat(d);
+ return`<button class="dish" onclick="openDish('${d.id}')"><div style="flex:1;min-width:0"><div style="font-weight:600;display:flex;gap:6px;align-items:center;flex-wrap:wrap">${esc(d.n)}${d.isNew?'<span class="chip p">新</span>':''}${st.r<3.6?'<span class="chip b">避雷</span>':''}</div>
+ <div class="faint" style="font-size:12px">${c.n} · ${w.n} · <span class="star">★${st.r.toFixed(1)}</span> · ${st.n} 条评价</div>${extra}</div><b style="color:var(--pri)">¥${d.p}</b></button>`;}
+function sceneName(k){const s=SCENES.find(x=>x.k===k);return s?s.i+' '+s.n:'';}
+
+/* ================= 页面：首页 ================= */
+function viewHome(){
+ if(!scene)scene=defaultScene();
+ const sc=SCENES.find(s=>s.k===scene),h=nowH();
+ const recs=recommend(scene),share=sceneShare(scene);
+ const greet=h<10?'早上好':h<14?'中午好':h<18?'下午好':'晚上好';
+ const newD=DISHES.filter(d=>d.isNew);
+ const bad=[...DISHES].sort((a,b)=>stat(a).r-stat(b).r).slice(0,2);
+ const storyW=WINDOWS.find(w=>w.id==='w9');
+ return`
+ <div class="notice">💡<div><b>产品雏形</b>：学校、食堂、菜品和数据全部为虚构示例；你写的点评只存在你自己的浏览器里。右上角可以切换「模拟时间」看不同时段的效果。</div></div>
+ <div class="hello"><h1>${greet}，现在是 ${fmtH(h)}</h1><p>你现在是什么状态？按场景帮你挑。</p></div>
+ ${S.exam?`<div class="exam">📚 <div><b>考试周模式</b> · 校历第 17 周。已优先推荐 pre 前、考试后、赶 due 场景；听竹轩自习人多，夜宵坊延长营业。</div></div>`:''}
+ <div class="wrap">
+  <div class="h2">你现在是？<div class="sp"></div><button class="chip ${S.exam?'on':''}" onclick="toggleExam()">📚 考试周模式</button></div>
+  <div class="scenes">${(S.exam?[...SCENES].sort((a,b)=>['pre','after','due'].includes(b.k)-['pre','after','due'].includes(a.k)):SCENES).map(s=>`
+   <button class="scene ${s.k===scene?'on':''}" onclick="pickScene('${s.k}')"><div class="i">${s.i}</div><div class="n">${s.n}</div><div class="d">${s.d}</div></button>`).join('')}</div>
+  <div class="need">这个场景你需要：${sc.need.map(x=>`<span class="chip p">${x}</span>`).join('')}${S.avoid.length?`<span class="chip">已排除：${S.avoid.join('、')}</span>`:''}</div>
+
+  <div class="h2">为你推荐 <small>${sc.i} ${sc.n}</small></div>
+  <div class="card">${recs.length?recs.map((x,i)=>{const d=x.d,w=W(d.w),c=C(w.c),st=stat(d);return`
+   <div class="rec" onclick="openDish('${d.id}')" style="cursor:pointer"><div class="rank">${i+1}</div>
+    <div style="flex:1;min-width:0"><div class="t">${esc(d.n)}${d.isNew?'<span class="chip p">新</span>':''}</div>
+     <div class="s">${c.n} · ${w.n} ${w.f} · <span class="star">★${st.r.toFixed(1)}</span></div>
+     <div class="rs">${reasons(d,scene).map(r=>`<span class="chip g">${r}</span>`).join('')}${crowdTag(c.id)}</div></div>
+    <div class="price"><b>¥${d.p}</b></div></div>`}).join(''):'<div class="empty">当前筛选下没有合适的推荐，试试在「我的」里放宽忌口或预算</div>'}</div>
+
+  <div class="h2">同场景的同学都去了哪 <small>本周 ${share.sample.toLocaleString()} 次打卡</small></div>
+  <div class="card pad bars">${share.top.map(x=>{const w=W(x.d.w);return`
+   <div class="row"><div><div class="lab"><span>${esc(x.d.n)} <span class="faint">· ${C(w.c).n}</span></span></div><div class="bar"><i style="width:${x.p}%"></i></div></div><div class="pct">${x.p}%</div></div>`}).join('')}
+   <div class="row"><div><div class="lab"><span class="faint">其他</span></div><div class="bar"><i style="width:${share.rest}%;background:var(--ink3)"></i></div></div><div class="pct faint">${share.rest}%</div></div>
+   <div class="faint" style="font-size:11.5px;margin-top:6px">数据来自同学点评时选的场景标签（示例数据）。你的点评也会计入这里。</div></div>
+
+  <div class="card random"><div class="big" id="rdIco">🎲</div><div style="flex:1"><div style="font-weight:700">实在选不出来？</div><div class="slot muted" id="rdOut" style="font-size:14px;font-weight:500">从营业中、评分 4.0 以上的菜里随机挑一个</div></div><button class="btn sm" onclick="randomPick()">帮我选</button></div>
+
+  <div class="h2">🆕 本周新菜 <div class="sp"></div><button class="more" onclick="goRank('new')">全部 ›</button></div>
+  <div class="hs">${newD.map(d=>{const st=stat(d),w=W(d.w);return`<button class="card mini" onclick="openDish('${d.id}')"><span class="chip ${st.r>=4?'g':'b'}">${st.r>=4?'尝鲜推荐':'慎点'}</span><div class="t">${esc(d.n)}</div><div class="faint" style="font-size:12px">${C(w.c).n} · ${w.n}</div><div style="margin-top:4px"><span class="star">★${st.r.toFixed(1)}</span> <span class="faint" style="font-size:12px">${st.n} 人尝鲜</span></div></button>`}).join('')}</div>
+
+  <div class="h2">⚠️ 避雷提醒 <div class="sp"></div><button class="more" onclick="goRank('bad')">避雷榜 ›</button></div>
+  <div class="card pad" style="padding-top:4px;padding-bottom:4px">${bad.map(d=>dishLine(d,`<div class="tags" style="margin-top:5px">${d.bad.map(t=>`<span class="chip b">${t}</span>`).join('')}</div>`)).join('')}</div>
+
+  <div class="h2">📖 本周档口故事</div>
+  <div class="story" onclick="openWin('${storyW.id}')" style="cursor:pointer"><div style="font-weight:700">${C(storyW.c).n} · ${storyW.n} <span class="chip p">${storyW.since} 年开业</span></div><div style="font-size:13.5px;margin-top:6px">${storyW.story}</div><div class="q">${storyW.q}</div></div>
+ </div>`;}
+function pickScene(k){scene=k;render();}
+function toggleExam(){S.exam=!S.exam;save();scene=null;render();toast(S.exam?'已开启考试周模式，加油！':'已关闭考试周模式');}
+function randomPick(){
+ const pool=DISHES.filter(d=>isOpen(C(W(d.w).c))&&stat(d).r>=4&&!blocked(d));
+ const out=$('#rdOut'),ico=$('#rdIco');
+ if(!pool.length){out.textContent='这个时间没有营业中的窗口，换个模拟时间试试';return;}
+ clearInterval(randomTimer);let i=0;ico.textContent='🎰';
+ randomTimer=setInterval(()=>{const d=pool[Math.floor(Math.random()*pool.length)];out.textContent=d.n;out.style.fontWeight=800;
+  if(++i>14){clearInterval(randomTimer);ico.textContent='🎯';const w=W(d.w);
+   out.innerHTML=`<a style="color:var(--pri);cursor:pointer" onclick="openDish('${d.id}')">${esc(d.n)}</a> <span class="faint" style="font-size:12px;font-weight:400">· ${C(w.c).n} ${w.n} ¥${d.p}</span>`;}},70);}
+
+/* ================= 页面：食堂 ================= */
+function viewCanteens(){const h=nowH();
+ return`<div class="wrap"><div class="h2">全部食堂 <small>${fmtH(h)} 实时人流（模拟）</small></div>
+ ${CANTEENS.map(c=>{const v=crowd(c.id),wins=WINDOWS.filter(w=>w.c===c.id);return`
+  <div class="card canteen"><div class="hd"><div style="flex:1"><div class="nm">${c.n} <span class="faint" style="font-size:13px;font-weight:400">${c.a}</span></div>
+   <div class="faint" style="font-size:12px">${fmtH(c.o)}–${fmtH(c.c)} · ${c.dist}</div></div>${crowdTag(c.id)}</div>
+   <div class="meter">${Array.from({length:10},(_,i)=>`<i style="${v>=0&&i<Math.ceil(v/10)?`background:${v<35?'var(--good)':v<70?'var(--warn)':'var(--bad)'}`:''}"></i>`).join('')}</div>
+   <div style="font-size:12.5px;color:var(--ink2);margin:10px 0 4px">📖 ${c.since} 年启用 · ${c.story}</div>
+   ${wins.map(w=>{const ds=DISHES.filter(d=>d.w===w.id);const avg=ds.reduce((a,d)=>a+stat(d).r,0)/ds.length;const hasNew=ds.some(d=>d.isNew)||w.since>=2026;const bad=avg<3.6||ds.some(d=>stat(d).r<3.3);return`
+   <button class="win" onclick="openWin('${w.id}')"><div style="flex:1"><div class="wn">${w.n} <span class="faint" style="font-size:12px;font-weight:400">${w.f}</span> ${hasNew?'<span class="chip p">上新</span>':''} ${bad?'<span class="chip b">有雷</span>':''}</div>
+    <div class="faint" style="font-size:12px">${ds.map(d=>d.n).join(' · ')}</div></div><span class="star">★${avg.toFixed(1)}</span><span class="faint">›</span></button>`}).join('')}
+  </div>`}).join('')}</div>`;}
+
+/* ================= 页面：榜单 ================= */
+function viewRank(){
+ let list,desc;
+ if(rankTab==='red'){list=[...DISHES].sort((a,b)=>bayes(b)-bayes(a)).slice(0,10);desc='综合评分与评价人数（贝叶斯平均），避免“1 个人打 5 分”霸榜';}
+ else if(rankTab==='bad'){list=DISHES.filter(d=>stat(d).r<3.6).sort((a,b)=>stat(a).r-stat(b).r);desc='评分低于 3.6，并列出最常见的差评原因';}
+ else{list=DISHES.filter(d=>d.isNew).sort((a,b)=>stat(b).r-stat(a).r);desc='本周上新，前 3 位点评的同学会获得「尝鲜官」徽章';}
+ return`<div class="wrap"><div style="height:8px"></div>
+ <div class="seg"><button class="${rankTab==='red'?'on':''}" onclick="goRank('red')">🔥 红榜</button><button class="${rankTab==='bad'?'on':''}" onclick="goRank('bad')">⚠️ 避雷榜</button><button class="${rankTab==='new'?'on':''}" onclick="goRank('new')">🆕 新菜速递</button></div>
+ <p class="faint" style="font-size:12px;margin:10px 2px">${desc}</p>
+ <div class="card pad" style="padding-top:2px;padding-bottom:2px">${list.map((d,i)=>{
+   const extra=rankTab==='bad'?`<div class="tags" style="margin-top:5px">${d.bad.map(t=>`<span class="chip b">${t}</span>`).join('')}</div>`
+    :rankTab==='red'?`<div class="tags" style="margin-top:5px"><span class="chip">#${i+1}</span><span class="chip g">回购 ${d.rep}%</span>${d.good.slice(0,2).map(t=>`<span class="chip g">${t}</span>`).join('')}</div>`
+    :`<div class="tags" style="margin-top:5px"><span class="chip ${stat(d).r>=4?'g':'b'}">${stat(d).r>=4?'值得尝鲜':'尝鲜翻车'}</span>${(stat(d).r>=4?d.good:d.bad).slice(0,2).map(t=>`<span class="chip">${t}</span>`).join('')}</div>`;
+   return dishLine(d,extra);}).join('')}</div></div>`;}
+function goRank(t){rankTab=t;tab='rank';render();window.scrollTo(0,0);}
+
+/* ================= 页面：数据 ================= */
+function viewData(){
+ const revs=allReviews();const totalN=DISHES.reduce((a,d)=>a+stat(d).n,0);
+ const sampleTot=SK.reduce((a,k)=>a+sceneShare(k).sample,0);
+ const tagCount={};DISHES.forEach(d=>{d.good.forEach(t=>{tagCount[t]=tagCount[t]||{g:1,n:0};tagCount[t].n+=Math.round(d.cnt*.3);});d.bad.forEach(t=>{tagCount[t]=tagCount[t]||{g:0,n:0};tagCount[t].n+=Math.round(d.cnt*.35)});});
+ S.reviews.forEach(r=>r.tags.forEach(t=>{tagCount[t]=tagCount[t]||{g:1,n:0};tagCount[t].n++;}));
+ const tags=Object.entries(tagCount).sort((a,b)=>b[1].n-a[1].n);
+ const topG=tags.filter(x=>x[1].g).slice(0,6),topB=tags.filter(x=>!x[1].g).slice(0,6);
+ const mg=Math.max(...topG.map(x=>x[1].n)),mb=Math.max(...topB.map(x=>x[1].n));
+ const hrs=[];for(let h=6;h<24;h+=.5)hrs.push(h);const h0=nowH();
+ const sorted=[...DISHES].sort((a,b)=>{const va=sortVal(a),vb=sortVal(b);return(va>vb?1:va<vb?-1:0)*sortDir;});
+ return`<div class="wrap">
+ <div class="h2">数据看板 <span class="chip w">示例数据</span></div>
+ <div class="kpis">
+  <div class="card kpi"><b>${CANTEENS.length}</b><span>食堂</span></div>
+  <div class="card kpi"><b>${WINDOWS.length}</b><span>窗口</span></div>
+  <div class="card kpi"><b>${DISHES.length}</b><span>菜品</span></div>
+  <div class="card kpi"><b>${(totalN/1000).toFixed(1)}k</b><span>累计评分</span></div>
+  <div class="card kpi"><b>${(sampleTot/1000).toFixed(1)}k</b><span>本周场景打卡</span></div>
+  <div class="card kpi"><b>${S.reviews.length}</b><span>我的点评</span></div>
+ </div>
+
+ <div class="h2">场景 → 去向 <small>各场景下同学们的选择</small></div>
+ ${SCENES.map(s=>{const sh=sceneShare(s.k);return`<div class="card pad bars" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-weight:700"><span>${s.i} ${s.n}</span><span class="faint" style="font-weight:400;font-size:12px">${sh.sample} 次打卡</span></div>
+  ${sh.top.slice(0,3).map(x=>`<div class="row"><div><div class="lab"><span>${esc(x.d.n)} <span class="faint">· ${C(W(x.d.w).c).n}</span></span></div><div class="bar bl"><i style="width:${x.p}%"></i></div></div><div class="pct">${x.p}%</div></div>`).join('')}</div>`}).join('')}
+
+ <div class="h2">分时段人流 <small>虚线外为未营业</small></div>
+ <div class="card pad">
+  <div class="seg" style="margin-bottom:10px">${CANTEENS.map(c=>`<button class="${crowdC===c.id?'on':''}" onclick="crowdC='${c.id}';render()">${c.n}</button>`).join('')}</div>
+  <div class="hourchart">${hrs.map(h=>{const v=crowd(crowdC,h);const isNow=h0>=h&&h0<h+.5;return`<i class="${v<0?'off':''} ${isNow?'now':''}" style="height:${v<0?4:v}%" title="${fmtH(h)} ${v<0?'未营业':v+'%'}"></i>`}).join('')}</div>
+  <div class="hx"><span>06:00</span><span>09:00</span><span>12:00</span><span>15:00</span><span>18:00</span><span>21:00</span><span>24:00</span></div>
+  <div class="faint" style="font-size:12px;margin-top:8px">当前 ${fmtH(h0)}：${crowdTag(crowdC)} · 建议错峰：${bestTime(crowdC)}</div>
+ </div>
+
+ <div class="h2">高频标签</div>
+ <div class="card pad bars">
+  <div style="font-weight:700;font-size:13px;color:var(--good)">👍 好评原因</div>
+  ${topG.map(([t,v])=>`<div class="row"><div><div class="lab"><span>${t}</span></div><div class="bar g"><i style="width:${v.n/mg*100}%"></i></div></div><div class="pct">${v.n}</div></div>`).join('')}
+  <div style="font-weight:700;font-size:13px;color:var(--bad);margin-top:14px">👎 差评原因</div>
+  ${topB.map(([t,v])=>`<div class="row"><div><div class="lab"><span>${t}</span></div><div class="bar b"><i style="width:${v.n/mb*100}%"></i></div></div><div class="pct">${v.n}</div></div>`).join('')}
+ </div>
+
+ <div class="h2">菜品原始数据 <small>点表头排序</small></div>
+ <div class="card tbl"><table><thead><tr>
+  ${[['n','菜品'],['c','食堂'],['p','价格'],['r','评分'],['cnt','评价数'],['rep','回购%'],['spd','出餐'],['fl','口味']].map(([k,l])=>`<th onclick="sortBy('${k}')">${l}${sortKey===k?(sortDir>0?' ↑':' ↓'):''}</th>`).join('')}
+ </tr></thead><tbody>${sorted.map(d=>{const st=stat(d);return`<tr onclick="openDish('${d.id}')" style="cursor:pointer"><td>${esc(d.n)}${d.isNew?' 🆕':''}</td><td>${C(W(d.w).c).n}</td><td>¥${d.p}</td><td style="color:${st.r<3.6?'var(--bad)':st.r>=4.5?'var(--good)':'inherit'};font-weight:600">${st.r.toFixed(2)}</td><td>${st.n}</td><td>${d.rep}</td><td>${d.spd}′</td><td>${d.fl}</td></tr>`}).join('')}</tbody></table></div>
+ <details><summary>查看完整数据（JSON）</summary><pre>${esc(JSON.stringify({canteens:CANTEENS,windows:WINDOWS,dishes:DISHES,reviews:revs,closedWindows:RIP},null,1))}</pre></details>
+ <button class="btn ghost block" onclick="downloadData()">⬇️ 下载数据 JSON</button>
+ </div>`;}
+function sortVal(d){if(sortKey==='c')return W(d.w).c;if(sortKey==='r')return stat(d).r;if(sortKey==='cnt')return stat(d).n;return d[sortKey];}
+function sortBy(k){if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=-1;}render();}
+function bestTime(cid){const c=C(cid);let best=null;for(let h=Math.max(c.o,nowH());h<c.c;h+=.25){const v=crowd(cid,h);if(v>=0&&v<35){best=h;break;}}return best==null?'今天剩余时段都偏挤':fmtH(best)+' 以后较空';}
+function downloadData(){const b=new Blob([JSON.stringify({canteens:CANTEENS,windows:WINDOWS,dishes:DISHES,reviews:allReviews(),closedWindows:RIP},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='shitang-leida-data.json';a.click();}
+
+/* ================= 页面：我的 ================= */
+const AVOIDS=['辣','海鲜','牛羊肉','香菜','乳制品'];
+function viewMe(){
+ const favs=S.favs.map(Dd).filter(Boolean);
+ const mem=S.mem.concat(SEED_MEM);
+ return`<div class="wrap">
+ <div class="card pad" style="margin-top:10px;display:flex;align-items:center;gap:12px"><span class="av" style="width:48px;height:48px;font-size:20px;background:var(--pri)">我</span>
+  <div style="flex:1"><div style="font-weight:800;font-size:17px">干饭同学</div><div class="faint" style="font-size:12.5px">已点评 ${S.reviews.length} 次 · 收藏 ${favs.length} 道 ${S.reviews.length>=1?'· <span class="chip p">🏅 尝鲜官</span>':''}</div></div></div>
+
+ <div class="h2">口味与忌口 <small>会影响首页推荐</small></div>
+ <div class="card pad"><div class="fl" style="margin-top:0">不吃</div><div class="pick">${AVOIDS.map(a=>`<span class="chip ${S.avoid.includes(a)?'on':''}" onclick="toggleAvoid('${a}')">${a}</span>`).join('')}</div>
+  <div class="fl">单餐预算上限：<b style="color:var(--pri)">¥${S.budget}</b></div><input type="range" min="5" max="40" step="1" value="${S.budget}" oninput="S.budget=+this.value;this.previousElementSibling.querySelector('b').textContent='¥'+this.value" onchange="save();toast('预算已更新')"></div>
+
+ <div class="h2">我的收藏</div>
+ <div class="card pad" style="padding-top:2px;padding-bottom:2px">${favs.length?favs.map(d=>dishLine(d)).join(''):'<div class="empty">在菜品页点 ☆ 收藏</div>'}</div>
+
+ <div class="h2">我的点评</div>
+ <div class="card pad" style="padding-top:2px;padding-bottom:2px">${S.reviews.length?[...S.reviews].reverse().map(r=>{const d=Dd(r.d);return`<div class="rv" style="border-top:0;border-bottom:1px solid var(--line)"><div style="font-weight:600">${esc(d.n)} <span class="star">${'★'.repeat(r.st)}</span></div><div class="tags" style="margin-top:4px"><span class="chip bl">${sceneName(r.s)}</span>${r.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>${r.t?`<div class="tx">${esc(r.t)}</div>`:''}</div>`}).join(''):'<div class="empty">还没有点评，吃完来 10 秒打个分吧</div>'}</div>
+
+ <div class="h2">💌 食堂记忆墙</div>
+ <div class="card pad" style="margin-bottom:10px"><textarea id="memIn" maxlength="120" placeholder="写下一段和食堂有关的记忆，比如：大一每周三都来吃这家……"></textarea><div style="text-align:right;margin-top:8px"><button class="btn sm" onclick="addMem()">贴上墙</button></div></div>
+ ${mem.map(m=>`<div class="mem">${esc(m.t)}<div class="m">${esc(m.u)} · ${esc(m.ago)}</div></div>`).join('')}
+
+ <div class="h2">🕯️ 已关闭窗口纪念墙</div>
+ ${RIP.map((r,i)=>`<div class="rip"><div style="display:flex;align-items:center;gap:8px"><b>${r.n}</b><span class="faint" style="font-size:12px">${r.w} · ${r.y}</span></div><div class="muted" style="font-size:13px;margin:6px 0 8px">${r.t}</div><button class="chip ${S.missed[i]?'on':''}" onclick="miss(${i})">🥲 我也想念 ${r.miss+(S.missed[i]?1:0)}</button></div>`).join('')}
+
+ <div class="h2">关于这个产品</div>
+ <button class="card pad" style="width:100%;text-align:left" onclick="openPRD()"><b>📄 产品需求文档（简版）</b><div class="faint" style="font-size:12.5px">背景洞察、目标用户、功能优先级、风险</div></button>
+ <button class="btn ghost block" style="margin-top:12px" onclick="resetAll()">清空我的本地数据</button>
+ </div>`;}
+function toggleAvoid(a){S.avoid=S.avoid.includes(a)?S.avoid.filter(x=>x!==a):[...S.avoid,a];save();render();}
+function addMem(){const v=$('#memIn').value.trim();if(!v)return toast('写点什么吧');S.mem.unshift({t:v,u:'我',ago:'刚刚'});save();render();toast('已贴上记忆墙');}
+function miss(i){S.missed[i]=!S.missed[i];save();render();}
+function resetAll(){if(!S.reviews.length&&!S.favs.length&&!S.mem.length&&!S.avoid.length){toast('本地没有数据');return;}S={reviews:[],favs:[],avoid:[],budget:40,mem:[],exam:false,up:{},missed:{}};save();render();toast('已清空');}
+
+/* ================= 弹层 ================= */
+let stack=[];
+function openSheet(fn){stack.push(fn);renderSheet();}
+function back(){stack.pop();renderSheet();}
+function closeAll(){stack=[];renderSheet();}
+function renderSheet(){const ov=$('#ov');if(!stack.length){ov.classList.remove('show');document.body.style.overflow='';return;}
+ const {title,body}=stack[stack.length-1]();
+ $('#sheet').innerHTML=`<div class="sh">${stack.length>1?'<button class="x" onclick="back()">‹</button>':''}<b>${title}</b><button class="x" onclick="closeAll()">✕</button></div><div class="sb">${body}</div>`;
+ ov.classList.add('show');document.body.style.overflow='hidden';}
+function refreshSheet(){if(stack.length)renderSheet();}
+
+function openWin(id){openSheet(()=>{const w=W(id),c=C(w.c),ds=DISHES.filter(d=>d.w===id);
+ const revs=allReviews().filter(r=>ds.some(d=>d.id===r.d)).slice(0,4);
+ return{title:`${c.n} · ${w.n}`,body:`
+ <div class="row2" style="margin-top:6px;flex-wrap:wrap">${crowdTag(c.id)}<span class="chip">${w.f} · ${fmtH(c.o)}–${fmtH(c.c)}</span><span class="chip">${c.dist}</span></div>
+ <div class="story"><div style="font-weight:700">📖 档口故事 <span class="chip p">${w.since} 年开业${w.since>=2026?' · 新窗口':''}</span></div><div style="font-size:13.5px;margin-top:6px">${w.story}</div>${w.q?`<div class="q">${w.q}</div>`:''}<div class="faint" style="font-size:11px;margin-top:6px">示例内容 · 真实版本由食堂方和学生共同提供</div></div>
+ <div class="fl">今日菜单</div><div class="card pad" style="padding-top:0;padding-bottom:0">${ds.map(d=>dishLine(d)).join('')}</div>
+ <div class="fl">最近点评</div>${revs.length?revs.map(rvHTML).join(''):'<div class="empty">还没有点评</div>'}
+ <button class="btn block" style="margin-top:14px" onclick="openReview('${ds[0].id}')">✍️ 写点评</button>`};});}
+
+function rvHTML(r){const d=Dd(r.d),key=r.id||r.ts;const up=(r.up||0)+(S.up[key]?1:0);return`<div class="rv"><div class="u">${avatar(r.u)}<b>${esc(r.u)}</b><span class="star">${'★'.repeat(r.st)}<span style="color:var(--line)">${'★'.repeat(5-r.st)}</span></span><div class="sp"></div><span class="faint" style="font-size:12px">${esc(r.ago)}</span></div>
+ <div class="tags" style="margin-top:6px"><span class="chip bl">${sceneName(r.s)}</span><span class="chip">${esc(d.n)}</span>${r.tags.map(t=>`<span class="chip ${['踩雷','太咸','太油','份量少','排队久','偏贵','凉了','有异味','味道大','鱼腥','勾芡厚','凉得快','太甜','不顶饱','油大'].includes(t)?'b':'g'}">${esc(t)}</span>`).join('')}</div>
+ ${r.t?`<div class="tx">${esc(r.t)}</div>`:''}<button class="chip ${S.up[key]?'on':''}" onclick="useful('${key}')">👍 有用 ${up}</button></div>`;}
+function useful(k){S.up[k]=!S.up[k];save();refreshSheet();}
+
+function openDish(id){openSheet(()=>{const d=Dd(id),w=W(d.w),c=C(w.c),st=stat(d);
+ const revs=allReviews().filter(r=>r.d===id);
+ const scTot=SK.reduce((a,k)=>a+d.sc[k],0)||1;
+ const fav=S.favs.includes(id);
+ const gTags=d.good.map((t,i)=>[t,Math.round(st.n*.3/(i+1))]),bTags=d.bad.map((t,i)=>[t,Math.round(st.n*.35/(i+1))]);
+ return{title:d.n,body:`
+ <div style="display:flex;align-items:center;gap:14px;margin-top:8px">
+  <div><div style="font-size:36px;font-weight:800;line-height:1" class="star">${st.r.toFixed(1)}</div><div class="faint" style="font-size:12px">${st.n} 条评价</div></div>
+  <div style="flex:1"><div style="font-weight:600">${c.n} · ${w.n} ${w.f}</div><div class="faint" style="font-size:12.5px">¥${d.p} · ${d.fl} · 出餐约 ${d.spd} 分钟 · 回购 ${d.rep}%</div>
+   <div class="tags" style="margin-top:6px">${d.isNew?'<span class="chip p">本周新菜</span>':''}${st.r<3.6?'<span class="chip b">⚠️ 避雷</span>':''}${d.portable?'<span class="chip">可带走</span>':''}${d.share?'<span class="chip">适合分享</span>':''}${d.smell?'<span class="chip w">味道较大</span>':''}</div></div>
+  <button class="fav" onclick="toggleFav('${id}')" aria-label="收藏">${fav?'⭐':'☆'}</button></div>
+ <div style="margin-top:8px">${crowdTag(c.id)}</div>
+ ${st.r<3.6?`<div class="exam" style="margin:12px 0 0;background:var(--bad-soft);color:var(--bad)">⚠️ 最近差评集中在：${d.bad.join('、')}。建议换同窗口的其他菜，或看看红榜。</div>`:''}
+ <div class="fl">大家在什么场景吃它</div><div class="card pad bars">${SK.filter(k=>d.sc[k]).map(k=>`<div class="row"><div><div class="lab"><span>${sceneName(k)}</span></div><div class="bar bl"><i style="width:${Math.round(d.sc[k]/scTot*100)}%"></i></div></div><div class="pct">${Math.round(d.sc[k]/scTot*100)}%</div></div>`).join('')||'<div class="faint">暂无</div>'}</div>
+ <div class="fl">标签</div><div class="tags">${gTags.map(([t,n])=>`<span class="chip g">${t} ${n}</span>`).join('')}${bTags.map(([t,n])=>`<span class="chip b">${t} ${n}</span>`).join('')}</div>
+ <div class="fl">点评（${revs.length}）</div>${revs.length?revs.map(rvHTML).join(''):'<div class="empty">还没有文字点评，来当第一个吧</div>'}
+ <div style="display:flex;gap:8px;margin-top:14px"><button class="btn ghost" style="flex:1" onclick="openWin('${w.id}')">看窗口</button><button class="btn" style="flex:2" onclick="openReview('${id}')">✍️ 10 秒点评</button></div>`};});}
+function toggleFav(id){S.favs=S.favs.includes(id)?S.favs.filter(x=>x!==id):[...S.favs,id];save();refreshSheet();toast(S.favs.includes(id)?'已收藏':'已取消收藏');}
+
+const GOOD_T=['好吃','份量足','性价比高','出餐快','清淡','热乎','适合分享','会回购'];
+const BAD_T=['踩雷','太咸','太油','份量少','排队久','偏贵','凉了','有异味'];
+let R={};
+function openReview(id){R={d:id,st:0,tags:[],s:scene||defaultScene(),t:''};openSheet(reviewSheet);}
+function reviewSheet(){const d=Dd(R.d);return{title:'10 秒点评',body:`
+ <div class="fl" style="margin-top:8px">吃的是</div>
+ <select onchange="R.d=this.value" style="width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--card)">${DISHES.map(x=>`<option value="${x.id}" ${x.id===R.d?'selected':''}>${esc(x.n)} · ${C(W(x.w).c).n}</option>`).join('')}</select>
+ <div class="fl">打个分</div><div class="stars">${[1,2,3,4,5].map(i=>`<button class="${i<=R.st?'on':''}" onclick="R.st=${i};refreshSheet()">★</button>`).join('')}<span class="faint" style="font-size:13px;align-self:center">${['','踩雷了','不太行','一般','不错','必吃！'][R.st]}</span></div>
+ <div class="fl">什么场景吃的？<span class="faint" style="font-weight:400">（帮下一位同学做决定）</span></div>
+ <div class="pick">${SCENES.map(s=>`<span class="chip ${R.s===s.k?'on':''}" onclick="R.s='${s.k}';refreshSheet()">${s.i} ${s.n}</span>`).join('')}</div>
+ <div class="fl">一键标签</div>
+ <div class="pick">${GOOD_T.map(t=>`<span class="chip ${R.tags.includes(t)?'on':'g'}" onclick="togTag('${t}')">${t}</span>`).join('')}</div>
+ <div class="pick" style="margin-top:6px">${BAD_T.map(t=>`<span class="chip ${R.tags.includes(t)?'on':'b'}" onclick="togTag('${t}')">${t}</span>`).join('')}</div>
+ <div class="fl">说两句（可选）</div><textarea maxlength="140" placeholder="比如：pre 前吃的，完全不犯困" oninput="R.t=this.value">${esc(R.t)}</textarea>
+ <button class="btn block" style="margin-top:14px" onclick="submitReview()">提交</button>`};}
+function togTag(t){R.tags=R.tags.includes(t)?R.tags.filter(x=>x!==t):[...R.tags,t];refreshSheet();}
+function submitReview(){if(!R.st)return toast('先打个分吧');
+ const first=!S.reviews.length;const ts=Date.now();
+ S.reviews.push({d:R.d,st:R.st,tags:R.tags,s:R.s,t:R.t.trim(),u:'我',ago:'刚刚',ts,up:0,id:'u'+ts});save();
+ stack.pop();render();refreshSheet();
+ toast(`已提交！已计入「${SCENES.find(s=>s.k===R.s).n}」场景数据${first?' · 获得 🏅 尝鲜官':''}`);}
+
+function openPRD(){openSheet(()=>({title:'产品需求文档（简版）',body:`<div class="prd">
+ <p><b>一句话理念：吃饭是校园生活的映射。</b></p>
+ <h3>1. 背景与洞察</h3><ul>
+ <li>学生去食堂多是被<b>时间、预算、距离</b>约束，问题不是“吃什么”，而是“去哪个食堂、排哪个窗口、会不会踩雷”。</li>
+ <li>食堂几乎没有信息，新菜、换档口、口碑变差只能口口相传；打了饭不能退，<b>踩雷成本高</b>。</li>
+ <li>选择由<b>校园场景</b>决定：pre 前要清淡要快，早八要开门早，考试后想犒劳自己。外卖平台不知道这些上下文，这是校园产品的护城河。</li>
+ <li>吃食堂也有情感属性：档口的历史、共同的记忆。</li></ul>
+ <h3>2. 目标用户</h3><ul><li>核心：日常吃食堂、时间紧、预算敏感的在校生</li><li>次要：信息最缺的新生；有忌口或健身需求的同学</li></ul>
+ <h3>3. 定位</h3><p>懂你校园节奏的食堂指南：场景化推荐，加上信息透明和避雷。</p>
+ <h3>4. 功能结构</h3><ul>
+ <li><b>场景推荐</b>：6 个场景 → 推荐 + 同场景群体数据；随机帮选；考试周模式</li>
+ <li><b>信息透明</b>：食堂、窗口、今日菜单、营业时间、实时人流与排队时长</li>
+ <li><b>避雷与口碑</b>：红榜（贝叶斯平均防刷）、避雷榜（附差评原因）、新菜速递</li>
+ <li><b>轻点评</b>：星级 + 一键标签 + 场景标签，10 秒完成；数据回流到推荐</li>
+ <li><b>情怀</b>：档口故事、食堂记忆墙、已关闭窗口纪念墙</li>
+ <li><b>个人</b>：忌口、预算、收藏、我的点评</li></ul>
+ <h3>5. 核心闭环</h3><p>选场景 → 看推荐和群体数据 → 查窗口（菜单、人流、口碑）→ 吃完 10 秒点评（带场景标签）→ 数据回流到推荐和榜单。</p>
+ <h3>6. 关键风险</h3><ul>
+ <li><b>UGC 供给</b>：点评极轻量 + 尝鲜官激励；让食堂方上传菜单、回应差评</li>
+ <li><b>冷启动</b>：档口故事等长期内容填充页面；数据不足时退回按评分推荐</li>
+ <li><b>隐私</b>：不用饭卡消费数据，只用用户主动点评和打卡的数据</li>
+ <li><b>刷分与恶意差评</b>：贝叶斯平均、校园身份认证、异常检测</li></ul>
+ <h3>7. 后续迭代</h3><ul><li>接入真实校历与课表，自动识别“下节课在哪栋楼”推荐最近食堂</li><li>食堂方后台：上传菜单、查看差评、回复</li><li>约饭搭子、毕业季“最怀念的窗口”投票</li></ul>
+ </div>`}));}
+
+/* ================= 路由 ================= */
+const TABS=[['home','🏠','推荐'],['canteens','🍱','食堂'],['rank','🏆','榜单'],['data','📊','数据'],['me','👤','我的']];
+function render(){
+ $('#nav').innerHTML=TABS.map(([k,i,n])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')"><span class="i">${i}</span>${n}</button>`).join('');
+ $('#view').innerHTML={home:viewHome,canteens:viewCanteens,rank:viewRank,data:viewData,me:viewMe}[tab]();}
+function go(k){tab=k;render();window.scrollTo(0,0);}
+render();
+</script>
+</body>
+</html>
